@@ -1,6 +1,9 @@
 .library-header nav { display:flex; align-items:center; gap:28px; }
 .library-header nav a { color:#625b53; font-size:14px; font-weight:600; text-decoration:none; }
 .library-header nav a:hover { color:var(--forest); }
+.library-tabs { position:sticky; z-index:12; top:0; display:flex; justify-content:center; gap:8px; padding:12px 24px; background:rgb(255 253 248 / 94%); border-bottom:1px solid var(--line); box-shadow:0 5px 20px rgb(61 45 29 / 5%); backdrop-filter:blur(10px); }
+.library-tabs button { display:flex; align-items:center; gap:9px; min-width:160px; padding:11px 18px; color:#756d64; background:transparent; border:1px solid transparent; border-radius:7px; font-weight:600; }
+.library-tabs button:hover { color:var(--forest); background:#f2ede4; }.library-tabs button.active { color:#f8f2e7; background:var(--forest); }.library-tabs button span { font-size:18px; line-height:1; }
 .library-hero { display:flex; align-items:end; justify-content:space-between; gap:40px; padding:76px max(5vw,24px) 58px; color:#f9f4ea; background:var(--forest); }
 .library-hero h1 { max-width:780px; margin:0; font-size:clamp(44px,6vw,76px); line-height:1.06; letter-spacing:-.035em; }
 .library-hero>div>p:last-child { max-width:620px; margin:20px 0 0; color:#cfdbd4; font-size:17px; line-height:1.6; }
@@ -13,7 +16,7 @@
 .my-library-section { padding-bottom:70px; border-bottom:1px solid var(--line); }
 .empty-collection { display:flex; align-items:center; justify-content:center; gap:32px; min-height:180px; padding:30px; background:var(--paper); border:1px dashed #cfc4b4; border-radius:12px; }
 .empty-collection h3 { margin:0 0 7px; color:var(--forest); font-family:'Playfair Display',serif; font-size:25px; }.empty-collection p { margin:0; color:#817970; }
-.book-search-section { padding-top:70px; }
+.book-search-section { padding-top:0; }
 .search-form { display:grid; grid-template-columns:1fr auto; gap:10px; padding:9px; background:var(--paper); border:1px solid var(--line); border-radius:10px; box-shadow:0 8px 30px rgb(65 52 37 / 6%); }
 .search-form input { min-height:52px; border:0; background:transparent; box-shadow:none; }.search-form input:focus { box-shadow:none; }
 .search-form button { min-width:150px; padding:0 24px; color:white; background:var(--forest); border:0; border-radius:7px; font-weight:600; }.search-form button:hover:not(:disabled) { background:var(--forest-light); }.search-form button:disabled { opacity:.65; }
