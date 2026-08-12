@@ -44,3 +44,18 @@ export async function searchOpenLibrary(query, signal) {
   const data = await response.json()
   return data.docs.filter((book) => book.key && book.title).map(mapBook)
 }
+
+export async function getOpenLibraryCovers(workId, currentCoverUrl, signal) {
+  if (!workId) return currentCoverUrl ? [currentCoverUrl] : []
+
+  const response = await fetch(`https://openlibrary.org/works/${workId}/editions.json?limit=40`, {
+    signal,
+    headers: { Accept: 'application/json' },
+  })
+  if (!response.ok) return currentCoverUrl ? [currentCoverUrl] : []
+
+  const data = await response.json()
+  const coverIds = [...new Set(data.entries?.flatMap((edition) => edition.covers ?? []).filter((id) => id > 0) ?? [])]
+  const covers = coverIds.slice(0, 12).map((id) => `https://covers.openlibrary.org/b/id/${id}-L.jpg`)
+  return [...new Set([currentCoverUrl, ...covers].filter(Boolean))]
+}
