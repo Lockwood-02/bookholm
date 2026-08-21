@@ -24,18 +24,27 @@ const STATUS_FILTERS = [
 export function Bookshelf({ books, categories, loading, onFindBooks, onCustomize, onCreateCategory, onRemove, onReorder }) {
   const [selectedBook, setSelectedBook] = useState(null)
   const [activeFilter, setActiveFilter] = useState('all')
+  const [libraryQuery, setLibraryQuery] = useState('')
   const [viewMode, setViewMode] = useState(() => localStorage.getItem('bookholm-library-view') || 'shelf')
   const [draggedId, setDraggedId] = useState(null)
   const [dragTargetId, setDragTargetId] = useState(null)
-  const visibleBooks = activeFilter === 'all'
+  const filteredBooks = activeFilter === 'all'
     ? books
     : activeFilter.startsWith('category:')
       ? books.filter((entry) => entry.category_ids?.includes(activeFilter.replace('category:', '')))
       : books.filter((entry) => entry.status === activeFilter)
+  const normalizedQuery = libraryQuery.trim().toLocaleLowerCase()
+  const visibleBooks = normalizedQuery
+    ? filteredBooks.filter((entry) => {
+        const title = entry.books.title?.toLocaleLowerCase() ?? ''
+        const authors = entry.books.authors?.join(' ').toLocaleLowerCase() ?? ''
+        return title.includes(normalizedQuery) || authors.includes(normalizedQuery)
+      })
+    : filteredBooks
   const shelves = groupIntoShelves(visibleBooks)
 
   function commitVisibleOrder(nextVisibleBooks) {
-    if (activeFilter === 'all') {
+    if (activeFilter === 'all' && !normalizedQuery) {
       onReorder(nextVisibleBooks)
       return
     }
@@ -86,6 +95,21 @@ export function Bookshelf({ books, categories, loading, onFindBooks, onCustomize
         </div>
       </div>}
 
+      {!loading && books.length > 0 && <div className="library-search">
+        <span className="library-search-icon" aria-hidden="true">⌕</span>
+        <label className="sr-only" htmlFor="library-search-input">Search your saved books</label>
+        <input
+          id="library-search-input"
+          type="search"
+          value={libraryQuery}
+          onChange={(event) => setLibraryQuery(event.target.value)}
+          placeholder="Search your library by title or author"
+          autoComplete="off"
+        />
+        {libraryQuery && <button type="button" onClick={() => setLibraryQuery('')} aria-label="Clear library search">Clear</button>}
+        <span className="library-search-count" aria-live="polite">{visibleBooks.length} {visibleBooks.length === 1 ? 'book' : 'books'}</span>
+      </div>}
+
       {loading && <div className="library-loading">Dusting your shelves...</div>}
       {!loading && books.length === 0 && (
         <div className="empty-bookshelf">
@@ -123,7 +147,8 @@ export function Bookshelf({ books, categories, loading, onFindBooks, onCustomize
       {!loading && visibleBooks.length > 0 && viewMode === 'columns' && <ColumnView books={visibleBooks} onSelect={setSelectedBook} />}
       {!loading && visibleBooks.length > 0 && viewMode === 'list' && <ListView books={visibleBooks} categories={categories} onSelect={setSelectedBook} />}
 
-      {!loading && books.length > 0 && visibleBooks.length === 0 && <div className="empty-filter"><h3>No books here yet</h3><p>Open a book from another section to change its reading stage or categories.</p><button type="button" onClick={() => setActiveFilter('all')}>View all books</button></div>}
+      {!loading && books.length > 0 && visibleBooks.length === 0 && normalizedQuery && <div className="empty-filter"><h3>No matching books</h3><p>We could not find “{libraryQuery.trim()}” in this section of your library.</p><button type="button" onClick={() => setLibraryQuery('')}>Clear search</button></div>}
+      {!loading && books.length > 0 && visibleBooks.length === 0 && !normalizedQuery && <div className="empty-filter"><h3>No books here yet</h3><p>Open a book from another section to change its reading stage or categories.</p><button type="button" onClick={() => setActiveFilter('all')}>View all books</button></div>}
 
       {selectedBook && <BookDetailsModal entry={selectedBook} categories={categories} onCreateCategory={onCreateCategory} onClose={() => setSelectedBook(null)} onSave={onCustomize} onRemove={onRemove} />}
     </section>
