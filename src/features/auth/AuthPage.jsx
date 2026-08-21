@@ -31,6 +31,27 @@ export function AuthPage() {
       return
     }
 
+    if (isSignUp) {
+      const requestedUsername = form.username.trim().toLowerCase()
+      const availability = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('username', requestedUsername)
+        .maybeSingle()
+
+      if (availability.error) {
+        setMessage({ type: 'error', text: 'We could not check that username. Please try again.' })
+        setBusy(false)
+        return
+      }
+
+      if (availability.data) {
+        setMessage({ type: 'error', text: 'That username is already taken. Please choose another.' })
+        setBusy(false)
+        return
+      }
+    }
+
     const result = isSignUp
       ? await supabase.auth.signUp({
           email: form.email,

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { BrandMark } from '../../components/BrandMark'
 import { supabase } from '../../lib/supabase'
 import { BookSearch } from '../books/components/BookSearch'
+import { BookClubsPage } from '../book-clubs/BookClubsPage'
 import { addBookToLibrary, createUserCategory, getUserCategories, getUserLibrary, removeBookFromLibrary, saveBookshelfOrder, updateBookCustomization } from '../books/services/libraryService'
 import { Bookshelf } from '../shelves/components/Bookshelf'
 import '../books/books.css'
@@ -91,6 +92,7 @@ export function LibraryHome({ session }) {
       <div className="library-tabs" role="tablist" aria-label="Library sections">
         <button type="button" role="tab" aria-selected={activeTab === 'bookshelf'} className={activeTab === 'bookshelf' ? 'active' : ''} onClick={() => showTab('bookshelf')}><span aria-hidden="true">▥</span> My Bookshelf</button>
         <button type="button" role="tab" aria-selected={activeTab === 'search'} className={activeTab === 'search' ? 'active' : ''} onClick={() => showTab('search')}><span aria-hidden="true">⌕</span> Find Books</button>
+        <button type="button" role="tab" aria-selected={activeTab === 'clubs'} className={activeTab === 'clubs' ? 'active' : ''} onClick={() => showTab('clubs')}><span aria-hidden="true">◎</span> Book Clubs</button>
       </div>
 
       {notice && <div className={`toast-notice ${notice.type}`} role="status">{notice.text}<button type="button" aria-label="Dismiss message" onClick={() => setNotice(null)}>x</button></div>}
@@ -98,6 +100,7 @@ export function LibraryHome({ session }) {
       <div className="library-content">
         {activeTab === 'bookshelf' && <Bookshelf books={library} categories={categories} loading={loadingLibrary} onFindBooks={() => showTab('search')} onCustomize={customizeBook} onCreateCategory={createCategory} onRemove={removeBook} onReorder={reorderBooks} />}
         {activeTab === 'search' && <BookSearch addedSourceIds={addedSourceIds} addingId={addingId} onAdd={handleAdd} />}
+        {activeTab === 'clubs' && <BookClubsPage userId={userId} onNotice={setNotice} />}
       </div>
     </main>
   )
