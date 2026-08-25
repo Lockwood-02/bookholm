@@ -29,7 +29,7 @@ export async function getClubWorkspace(clubId, isOwner) {
   const requests = [
     supabase.from('book_club_members').select('role, joined_at, profile:profiles!book_club_members_user_id_fkey(id, display_name, username, avatar_url)').eq('club_id', clubId).order('joined_at'),
     supabase.from('book_club_messages').select('id, body, created_at, sender_id, sender:profiles!book_club_messages_sender_id_fkey(display_name, username, avatar_url)').eq('club_id', clubId).order('created_at').limit(200),
-    supabase.from('book_club_events').select('id, title, description, location, starts_at, ends_at, created_by, creator:profiles!book_club_events_created_by_fkey(display_name, username)').eq('club_id', clubId).order('starts_at'),
+    supabase.from('book_club_events').select('id, title, description, location, starts_at, ends_at, has_time, created_by, creator:profiles!book_club_events_created_by_fkey(display_name, username)').eq('club_id', clubId).order('starts_at'),
   ]
   if (isOwner) requests.push(supabase.from('book_club_invites').select('invite_code').eq('club_id', clubId).single())
 
@@ -61,6 +61,12 @@ export async function sendClubMessage(clubId, userId, body) {
 }
 
 export async function createClubEvent(clubId, userId, values) {
+  const [year, month, day] = values.eventDate.split('-').map(Number)
+  const [startHour, startMinute] = (values.startTime || '12:00').split(':').map(Number)
+  const startsAt = new Date(year, month - 1, day, startHour, startMinute)
+  const endsAt = values.startTime && values.endTime
+    ? (() => { const [hour, minute] = values.endTime.split(':').map(Number); return new Date(year, month - 1, day, hour, minute) })()
+    : null
   const result = await supabase
     .from('book_club_events')
     .insert({
@@ -69,10 +75,11 @@ export async function createClubEvent(clubId, userId, values) {
       title: values.title.trim(),
       description: values.description.trim() || null,
       location: values.location.trim() || null,
-      starts_at: new Date(values.startsAt).toISOString(),
-      ends_at: values.endsAt ? new Date(values.endsAt).toISOString() : null,
+      starts_at: startsAt.toISOString(),
+      ends_at: endsAt?.toISOString() ?? null,
+      has_time: Boolean(values.startTime),
     })
-    .select('id, title, description, location, starts_at, ends_at, created_by, creator:profiles!book_club_events_created_by_fkey(display_name, username)')
+    .select('id, title, description, location, starts_at, ends_at, has_time, created_by, creator:profiles!book_club_events_created_by_fkey(display_name, username)')
     .single()
   if (result.error) throw result.error
   return result.data
