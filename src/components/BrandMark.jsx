@@ -1,3 +1,3 @@
 export function BrandMark() {
-  return <div className="brand-mark" aria-hidden="true"><span /><span /><span /></div>
+  return <img className="brand-mark" src="/bookholm-logo.png" alt="" aria-hidden="true" />
 }
