@@ -130,10 +130,11 @@ export async function updateBookCustomization(userBookId, userId, customization)
       spine_color: customization.spineColor,
       selected_cover_url: customization.coverUrl,
       status: customization.status,
+      rating: customization.rating,
     })
     .eq('id', userBookId)
     .eq('user_id', userId)
-    .select('id, status, spine_color, selected_cover_url')
+    .select('id, status, rating, spine_color, selected_cover_url')
     .single()
 
   if (result.error) throw result.error
