@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getOpenLibraryCovers } from '../../books/api/openLibrary'
 import { BookCover } from '../../books/components/BookCover'
+import { StarRating } from '../../books/components/StarRating'
 
 const SPINE_COLORS = ['#8F493B', '#C07B52', '#C39A61', '#2F5D50', '#486A7C', '#665070', '#8A704A', '#37483E']
 
@@ -14,6 +15,7 @@ export function BookDetailsModal({ entry, categories, onCreateCategory, onClose,
   const [spineColor, setSpineColor] = useState(entry.spine_color || '')
   const [coverUrl, setCoverUrl] = useState(defaultCover || '')
   const [status, setStatus] = useState(entry.status || 'want_to_read')
+  const [rating, setRating] = useState(entry.rating == null ? null : Number(entry.rating))
   const [categoryIds, setCategoryIds] = useState(entry.category_ids || [])
   const [newCategory, setNewCategory] = useState('')
   const [creatingCategory, setCreatingCategory] = useState(false)
@@ -51,7 +53,7 @@ export function BookDetailsModal({ entry, categories, onCreateCategory, onClose,
     setSaving(true)
     setError('')
     try {
-      await onSave(entry.id, { spineColor: spineColor || null, coverUrl: coverUrl || null, status, categoryIds })
+      await onSave(entry.id, { spineColor: spineColor || null, coverUrl: coverUrl || null, status, rating, categoryIds })
       onClose()
     } catch {
       setError('Your changes could not be saved. Please try again.')
@@ -105,12 +107,13 @@ export function BookDetailsModal({ entry, categories, onCreateCategory, onClose,
             {book.published_date && <div><dt>Published</dt><dd>{book.published_date}</dd></div>}
             {book.publisher && <div><dt>Publisher</dt><dd>{book.publisher}</dd></div>}
             {book.page_count && <div><dt>Length</dt><dd>{book.page_count} pages</dd></div>}
-            {entry.rating && <div><dt>Your rating</dt><dd>{entry.rating} / 5</dd></div>}
+            {rating && <div><dt>Your rating</dt><dd>{rating} / 5</dd></div>}
           </dl>
           <div className="book-description"><h3>About this book</h3><p>{book.description || 'A description is not available for this edition yet.'}</p></div>
 
           <div className="customize-panel">
             <h3>Organize this book</h3>
+            <fieldset><legend>Your rating</legend><StarRating value={rating} onChange={setRating} /></fieldset>
             <label className="reading-status-field">Reading section<select value={status} onChange={(event) => setStatus(event.target.value)}><option value="want_to_read">To Be Read</option><option value="reading">Reading</option><option value="finished">Read</option><option value="did_not_finish">Did Not Finish</option></select></label>
 
             <fieldset className="category-picker"><legend>Custom categories</legend>
